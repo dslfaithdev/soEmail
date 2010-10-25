@@ -445,4 +445,50 @@ function xdslTrust($uid, $xdsl, $db)
 	$return = $trust . "," . (count($path)-1);
 	return $return;
 }
+
+function findPath($uid, $from, $to)
+{
+	$from = trim($from,",");
+	$to = trim($to,",");
+//Verify the from mail and $uid.
+	if($uid != getUserIdFromEmail($from))
+		return -1;
+
+	$return = "";
+
+	$to_emails = split(",", $to);
+
+	foreach($to_emails as $to_email){
+		$userID_to = getUserIdFromEmail($to_email);
+		if($userID_to>0){
+			$return .= "$to_email:<br><table>";
+			$path = findSocialPath($uid,$userID_to);
+			//print_r($path);
+			//echo "<BR>";
+
+			$nodes = "";
+			$pathDisplay = "";
+
+			$firstNode = true;
+			foreach($path as $node){
+				$name = uidToName($node[0]);
+				if(!$firstNode){
+					$pathDisplay .= "<td>&nbsp; &#8658; &nbsp;</td>";
+				}
+				$pathDisplay .= "<td valign='top'><center><a href='http://www.facebook.com/profile.php?id=" . $node[0] . "'><img src='" . getPic($node[0]) . "'/><br/>";
+				$pathDisplay .= "$name</a>";
+				if(!$firstNode){
+					$pathDisplay .= "<br/>Probability: " . $node[1];
+				}
+				$pathDisplay .= "</center></td>";
+				//$pathDisplay = $pathDisplay . $name . "->";
+				$nodes = $nodes . $node[0] . ",";
+				$firstNode=false;
+			}
+			$nodes = substr($nodes,0,-1);
+			$return .= "<tr><td><input type='radio' name='" . str_replace(".","_",$to_email) . "' value='$nodes' checked=\"checked\" class=\"inputXdsl\"/></td>$pathDisplay</tr></table>";
+		}
+	}
+	return $return;
+}
 ?>

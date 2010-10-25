@@ -491,4 +491,72 @@ function findPath($uid, $from, $to)
 	}
 	return $return;
 }
+function registerXdsl($uid, $p, $db)
+{
+	$x_dsl = "NULL";
+	$paths = explode(":",trim($p,":"));
+
+	foreach( $paths as $path )
+	{
+		$verifyPath = $hops = explode(",",$path);
+		
+		//Verify that the sender is the firstone in the path.
+		if($uid != array_shift($hops))
+			return "-2";
+		
+		//Verify that the given path is really valid.
+		//    $sender = $uid;
+		$recipient = array_pop($hops);
+		$findSP = findSocialPath($uid, $recipient);
+		$trust = "";
+		foreach($verifyPath as $key => $vp){
+		//Verify that the given path is really valid.
+			if($vp != $findSP[$key][0])
+				return -1;
+			$trust .= $findSP[$key][1] . ",";
+		}
+		//RETURN -1
+		//FAITH please..
+		//RETURN -1
+		/*
+		 * Should create entities in DB like this:
+		 * mysql> select * from messages where msgID=317;
+		 * +-------+------------+-------------+---------------------------------+---------+
+		 * | msgID | senderID   | recipientID | path                            | outcome |
+		 * +-------+------------+-------------+---------------------------------+---------+
+		 * |   317 | 1271758422 |  1206111571 | 1271758422,581205756,1206111571 |    NULL | 
+		 * |   317 | 1271758422 |  1214439232 | 1271758422,581205756,1214439232 |    NULL | 
+		 * +-------+------------+-------------+---------------------------------+---------+
+		 * 2 rows in set (0.00 sec)
+		 *
+		 */
+		// DSL: Add social context to the header. X-DSL
+		// Update the database with this info.
+		$query = "INSERT INTO messages VALUES($x_dsl ," .
+			mysql_real_escape_string($uid) . "," . 
+			mysql_real_escape_string($recipient) .  ",\"" .  
+			mysql_real_escape_string($path) . "\",NULL)";
+		mysql_query($query,$db);
+		if($x_dsl == "NULL")
+			$x_dsl = mysql_insert_id();
+/*
+ * mysql> describe messages_trust;
+ * +-------------+--------------+------+-----+---------+-------+
+ * | Field       | Type         | Null | Key | Default | Extra |
+ * +-------------+--------------+------+-----+---------+-------+
+ * | msgID       | int(11)      | YES  |     | NULL    |       | 
+ * | senderID    | bigint(20)   | YES  |     | NULL    |       | 
+ * | recipientID | bigint(20)   | YES  |     | NULL    |       | 
+ * | trust       | varchar(256) | YES  |     | NULL    |       | 
+ * +-------------+--------------+------+-----+---------+-------+
+ */
+		$query = "INSERT INTO messages_trust (msgID,senderID,recipientID,trust) VALUES ($x_dsl, ".
+			mysql_real_escape_string($uid) .  "," .  
+			mysql_real_escape_string($recipient) .  ",\"" .  
+			mysql_real_escape_string(trim($trust,",")) . "\")";
+		mysql_query($query,$db);
+	}
+	return $x_dsl;
+}
+
 ?>

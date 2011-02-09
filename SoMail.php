@@ -6,6 +6,8 @@ require_once(SM_PATH . 'functions/display_messages.php');
 require_once(SM_PATH . "facebook/facebook.php");
 
 
+
+
 function injectJS()
 {
 
@@ -73,7 +75,7 @@ function readMail()
 			}
 			$pathDisplay .= "<td valign='top'><center><a " . 
 				"href='http://www.facebook.com/profile.php?id=" . $node . "'><img src='" .
-				getPic($node) . "'><br>";
+				getPic($node,$uid) . "'><br>";
 			$pathDisplay .= "$name</a></center></td>";
 			$firstNode=false;
 		}
@@ -116,13 +118,13 @@ function verifyXdsl($xdsl,$username, $uid, $db)
 		$pathDisplay = "<table><tr>";
 		$firstNode = true;
 		foreach($nodes as $node){
-			$name = uidToName($node);
+			$name = uidToName($node,$uid);
 			if(!$firstNode){
 				$pathDisplay .= "<td>&nbsp; &#8658; &nbsp;</td>";
 			}
 			$pathDisplay .= "<td valign='top'><center><a " . 
 				"href='http://www.facebook.com/profile.php?id=" . $node . "'><img src='" .
-				getPic($node) . "'/><br/>";
+				getPic($node,$uid) . "'/><br/>";
 			$pathDisplay .= "$name</a></center></td>";
 			$firstNode=false;
 		}
@@ -388,7 +390,7 @@ function insertXdslTrust($db)
 	while ($row = mysql_fetch_array($result)) {
 		$nodes = explode(",",$row["path"]);
 
-		$path = findSocialPath($row["senderID"],$row["recipientID"]);
+		$path = findSocialPath($row["senderID"],$row["recipientID"],$row["recipientID"]);
 		echo "<pre>";
 		//print_r($path);
 		//print_r($nodes);
@@ -425,7 +427,7 @@ function xdslTrust($uid, $xdsl, $db)
 		return "-1";
 	$nodes = explode(",",$result[0]);
 
-	$path = findSocialPath($result[1],$uid);
+	$path = findSocialPath($result[1],$uid,$uid);
 	//echo "<pre>";
 	//print_r($path);
 	//print_r($nodes);
@@ -462,7 +464,7 @@ function findPath($uid, $from, $to)
 		$userID_to = getUserIdFromEmail($to_email);
 		if($userID_to>0){
 			$return .= "$to_email:<br><table>";
-			$path = findSocialPath($uid,$userID_to);
+			$path = findSocialPath($uid,$userID_to,$from);
 			//print_r($path);
 			//echo "<BR>";
 
@@ -471,11 +473,11 @@ function findPath($uid, $from, $to)
 
 			$firstNode = true;
 			foreach($path as $node){
-				$name = uidToName($node[0]);
+				$name = uidToName($node[0],$from);
 				if(!$firstNode){
 					$pathDisplay .= "<td>&nbsp; &#8658; &nbsp;</td>";
 				}
-				$pathDisplay .= "<td valign='top'><center><a href='http://www.facebook.com/profile.php?id=" . $node[0] . "'><img src='" . getPic($node[0]) . "'/><br/>";
+				$pathDisplay .= "<td valign='top'><center><a href='http://www.facebook.com/profile.php?id=" . $node[0] . "'><img src='" . getPic($node[0],$uid) . "'/><br/>";
 				$pathDisplay .= "$name</a>";
 				if(!$firstNode){
 					$pathDisplay .= "<br/>Probability: " . $node[1];

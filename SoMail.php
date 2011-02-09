@@ -456,7 +456,7 @@ function findPath($uid, $from, $to)
 
 	$return = "";
 
-	$to_emails = split(",", $to);
+	$to_emails = explode(",", $to);
 
 	foreach($to_emails as $to_email){
 		$userID_to = getUserIdFromEmail($to_email);

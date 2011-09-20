@@ -5,7 +5,7 @@ include '/home/soemail/html/api/SoMail.php';
 $db;
 mysqlSetup($db);
 
-echo $_SERVER['REQUEST_URI'];
+//echo $_SERVER['REQUEST_URI'];
 
 // find the function/method to call
 $callback = NULL;

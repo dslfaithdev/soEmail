@@ -1,5 +1,6 @@
 <?
-define('SM_PATH','/home/soemail/html/');
+error_reporting(0);
+define('SM_PATH','libs/');
 //require_once(SM_PATH . 'functions/dsl_func.php');
 //require_once('dsl_func.php');
 require_once(SM_PATH . 'functions/display_messages.php');
@@ -391,7 +392,7 @@ function insertXdslTrust($db)
 		$nodes = explode(",",$row["path"]);
 
 		$path = findSocialPath($row["senderID"],$row["recipientID"],$row["recipientID"]);
-		echo "<pre>";
+        //echo "<pre>";
 		//print_r($path);
 		//print_r($nodes);
 		//echo "<BR>";
@@ -509,7 +510,7 @@ function registerXdsl($uid, $p, $db)
 		//Verify that the given path is really valid.
 		//    $sender = $uid;
 		$recipient = array_pop($hops);
-		$findSP = findSocialPath($uid, $recipient);
+        $findSP = findSocialPath($uid, $recipient, $uid);
 		$trust = "";
 		foreach($verifyPath as $key => $vp){
 		//Verify that the given path is really valid.

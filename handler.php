@@ -1,6 +1,6 @@
 <?php
 //ini_set('display_errors', 1);
-include '/home/soemail/html/api/SoMail.php';
+include 'SoMail.php';
 
 $db;
 mysqlSetup($db);
